@@ -1,0 +1,6 @@
+_pycache_/
+*.pyc
+*.pkl
+.env
+data/processed_data.csv
+docker/
