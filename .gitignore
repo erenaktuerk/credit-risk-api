@@ -1,6 +1,16 @@
+# Python
 _pycache_/
 *.pyc
-*.pkl
-.env
-data/processed_data.csv
-docker/
+*.pyo
+*.pyd
+
+# Virtualenv
+venv/
+env/
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/

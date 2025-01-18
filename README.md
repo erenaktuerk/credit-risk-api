@@ -1,16 +1,30 @@
-# Credit Risk API
+# Credit Risk Prediction API
 
-This project provides a machine learning model to assess credit risk using an API built with FastAPI.
+This project uses machine learning to predict credit risk for loan applications. It utilizes data preprocessing, model training, and deployment through FastAPI.
 
 ## Features
 - Train a logistic regression model for credit risk classification.
 - Serve predictions via a RESTful API.
 
-## Setup
-1. Clone the repository.
-2. Install dependencies: pip install -r requirements.txt
-3. Run the API: uvicorn app.main:app --reload
-4. Test the API: Visit http://127.0.0.1:8000/docs
 
-## License
-This project is licensed under the MIT License.
+## Tools
+- Python
+- FastAPI
+- scikit-learn
+- Pandas
+
+## Installation
+1. Clone the repository
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+
+	3.	Run the API:
+
+uvicorn app.main:app --reload
+
+
+
+License
+
+MIT License
