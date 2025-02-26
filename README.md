@@ -1,43 +1,65 @@
 Credit Risk Prediction API
 
-This project aims to predict credit risk for loan applications using machine learning. It preprocesses the data, trains a classification model, and exposes predictions through a FastAPI-based RESTful API.
+This project provides a complete, production-oriented solution for predicting credit risk for loan applications. By integrating advanced data preprocessing, robust model training with hyperparameter optimization, and a FastAPI-based RESTful interface, the solution demonstrates how to build and deploy machine learning models for real-world financial decision support. The project highlights best practices in data handling, model optimization, and API development.
 
 Features
-	•	Data Preprocessing: Cleans and prepares the data for modeling.
-	•	Model Training: Uses a logistic regression model to predict credit risk.
-	•	API Deployment: Exposes the model for real-time predictions via FastAPI.
+	•	Comprehensive Data Preprocessing:
+	•	Cleans raw data (removes duplicates, handles missing values with median/mode imputation).
+	•	Applies outlier capping using the IQR method.
+	•	Creates derived features (e.g., income-to-loan ratio).
+	•	One-Hot Encodes categorical variables for model compatibility.
+	•	Robust Model Training:
+	•	Uses Logistic Regression with hyperparameter tuning via GridSearchCV.
+	•	Incorporates stratified cross-validation to ensure model generalization.
+	•	Saves both the trained model and the feature set for consistent predictions.
+	•	Real-Time Prediction API:
+	•	Deploys the model using FastAPI, offering a RESTful interface.
+	•	Provides interactive API documentation (Swagger UI) for easy testing and integration.
+	•	Ensures production-readiness with modular, well-documented code.
 
 Tools & Frameworks
-	•	Python: Primary programming language
-	•	FastAPI: Framework for building the RESTful API
-	•	scikit-learn: For machine learning models and evaluation
-	•	Pandas: For data manipulation and preprocessing
-	•	Uvicorn: ASGI server for running the FastAPI app
+	•	Python: Primary programming language.
+	•	FastAPI: Framework for building the RESTful API.
+	•	scikit-learn: Library for machine learning models, preprocessing, and evaluation.
+	•	Pandas & NumPy: For data manipulation and numerical operations.
+	•	Uvicorn: ASGI server to run the FastAPI application.
+	•	Joblib: For model persistence and saving feature sets.
 
-Installation
-	1.	Clone the repository:
+Installation & Usage
+	1.	Clone the Repository:
 
-git clone <https://github.com/erenaktuerk/credit-risk-api>
+git clone https://github.com/erenaktuerk/credit-risk-api
+cd credit-risk-api
 
 
-	2.	Install dependencies:
+	2.	Install Dependencies:
 
 pip install -r requirements.txt
 
 
-	3.	Train the model and run the API:
-	•	First, train the model:
+	3.	Train the Model:
+Run the training script to preprocess data, train the model, and save both the model and the feature columns:
 
 python app/ml/train_model.py
 
 
-	•	Start the API server:
+	4.	Start the API Server:
+Launch the FastAPI server with Uvicorn:
 
 uvicorn app.main:app --reload
 
+The API will be accessible at http://127.0.0.1:8000 and the interactive docs under /docs.
 
-The model will be trained and saved, and the API will be accessible at http://127.0.0.1:8000.
+Next Steps
+	•	Model Improvement:
+	•	Evaluate alternative models (e.g., XGBoost, Random Forest, Neural Networks).
+	•	Refine feature engineering and consider dimensionality reduction if needed.
+	•	Enhanced Deployment:
+	•	Containerize the application using Docker for a reproducible production environment.
+	•	Implement CI/CD pipelines for automated testing and deployment.
+	•	Monitoring & Logging:
+	•	Integrate detailed logging and monitoring for model performance and API usage in production.
 
 License
 
-MIT License
+This project is licensed under the MIT License.

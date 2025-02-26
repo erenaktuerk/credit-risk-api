@@ -1,5 +1,5 @@
 import pandas as pd
-from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.preprocessing import LabelEncoder, StandardScaler
@@ -7,54 +7,83 @@ from sklearn.impute import SimpleImputer
 from sklearn.pipeline import Pipeline
 from joblib import dump
 
-# Load dataset
+# Load the cleaned dataset
 data_path = "data/cleaned_data/cleaned_data.csv"
 data = pd.read_csv(data_path)
 
-# Encode target variable
+# Verify that the dataset contains the expected number of features
+print(f"Data columns: {data.columns}")
+print(f"Data shape: {data.shape}")  # Ensure the correct number of features
+
+# Encode the target variable (loan_grade) into numerical values
 label_encoder = LabelEncoder()
 data['loan_grade'] = label_encoder.fit_transform(data['loan_grade'])
 
-# Drop irrelevant columns
-data.drop(columns=["loan_status"], inplace=True)
+# Drop irrelevant columns that do not contribute to the model's prediction
+# In this case, we drop 'loan_status' which contains only NaN values
+data.drop(columns=["loan_status"], inplace=True, errors='ignore')
 
-# One-hot encode categorical variables
+# One-hot encode categorical variables to convert them into a format suitable for machine learning models
+# Drop the first category to avoid multicollinearity
 data = pd.get_dummies(data, drop_first=True)
 
-# Define features and target variable
-X = data.drop(columns=["loan_grade"])
-y = data["loan_grade"]
+# Print the shape of the data after encoding to verify the number of features
+print(f"Data shape after encoding: {data.shape}")
 
-# Define the pipeline
+# Define the feature set (X) and the target variable (y)
+X = data.drop(columns=["loan_grade"])  # Features exclude 'loan_grade'
+y = data["loan_grade"]  # Target variable is 'loan_grade'
+
+# Save the column names (features)
+model_columns = X.columns.tolist()
+dump(model_columns, 'app/models/model_columns.pkl')  # Save model columns
+
+# Define the preprocessing and modeling pipeline
+# The pipeline will handle missing values, standardize features, and train a Logistic Regression model
 pipeline = Pipeline(steps=[
-    ('imputer', SimpleImputer(strategy="mean")),
-    ('scaler', StandardScaler()),
-    ('classifier', LogisticRegression(max_iter=500, solver="lbfgs", class_weight="balanced"))
+    ('imputer', SimpleImputer(strategy="mean")),      # Fill missing numeric values with the mean
+    ('scaler', StandardScaler()),                     # Standardize features to have zero mean and unit variance
+    ('classifier', LogisticRegression(max_iter=2000, solver="lbfgs", class_weight="balanced"))
 ])
 
-# Hyperparameter grid
+# Define the hyperparameter grid for tuning the Logistic Regression model
+# We will tune the regularization strength 'C' to find the best performing model
 param_grid = {
-    'classifier__C': [0.01, 0.1, 1],  # Narrow range for faster optimization
+    'classifier__C': [0.01, 0.1, 1]  # Regularization strength for logistic regression
 }
 
-# Train-test split
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+# Split the dataset into training and testing sets, ensuring that class distribution is preserved
+# 80% for training and 20% for testing
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
 
-# GridSearchCV
-grid_search = GridSearchCV(pipeline, param_grid, cv=3, scoring='accuracy', verbose=1, n_jobs=-1)
+# Set up Stratified K-Fold cross-validation to evaluate the model performance
+# StratifiedKFold ensures that each fold has the same distribution of target classes
+cv_strategy = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+# Perform grid search with cross-validation to find the best model
+grid_search = GridSearchCV(
+    pipeline, param_grid, cv=cv_strategy, scoring='accuracy', verbose=1, n_jobs=-1
+)
 grid_search.fit(X_train, y_train)
 
-# Best parameters and evaluation
-print(f"Best parameters: {grid_search.best_params_}")
+# Output the best hyperparameters and the best model
+print(f"Best hyperparameters found: {grid_search.best_params_}")
 best_model = grid_search.best_estimator_
 
-# Predictions and evaluation
-y_pred = best_model.predict(X_test)
-accuracy = accuracy_score(y_test, y_pred)
-print(f"Model Accuracy: {accuracy:.4f}")
+# Evaluate the best model on the test set
+y_pred = best_model.predict(X_test)  # Make predictions on the test set
+test_accuracy = accuracy_score(y_test, y_pred)  # Calculate accuracy of the model on the test set
+print(f"Test Set Accuracy: {test_accuracy:.4f}")
 print("Classification Report:")
-print(classification_report(y_test, y_pred))
+print(classification_report(y_test, y_pred))  # Print detailed classification metrics
 
-# Save the model
+# Perform cross-validation on the training set to evaluate the model's generalization ability
+cv_scores = cross_val_score(best_model, X_train, y_train, cv=cv_strategy, n_jobs=-1)
+print(f"Cross-Validation Scores: {cv_scores}")
+print(f"Average Cross-Validation Score: {cv_scores.mean():.4f}")
+
+# Save the best model to a file so it can be used later without retraining
 dump(best_model, "app/models/model.pkl")
 print("Model saved successfully.")
