@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.discriminant_analysis import StandardScaler
 from sklearn.impute import SimpleImputer
 from app.utils import load_model
+from app.evaluation.model_interpretation import ModelInterpreter
 
 router = APIRouter()
 
@@ -74,3 +75,32 @@ def predict_risk(input_data: CreditRiskInput):
         return {"risk": risk}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
+
+@router.get("/interpret-model/")
+def interpret_model():
+    """
+    Endpoint to interpret the trained model using SHAP values.
+    """
+    try:
+        df = pd.read_csv("data/cleaned_data/cleaned_data.csv")
+        if "loan_grade" in df.columns:
+            X = df.drop(columns=["loan_grade"])
+        else:
+            X = df.copy()
+
+        missing_cols = set(model_columns) - set(X.columns)
+        for col in missing_cols:
+            X[col] = 0
+        X = X[model_columns]
+
+        interpreter = ModelInterpreter(model=model, data=X)
+        background = X.sample(n=100, random_state=42)
+        interpreter.initialize_explainer(background)
+
+        sample_data = X.head(10)
+        shap_values = interpreter.compute_shap_values(sample_data)
+        interpreter.plot_summary(shap_values, sample_data)
+
+        return {"message": "SHAP summary plot successfully created and saved."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Model interpretation failed: {e}")
