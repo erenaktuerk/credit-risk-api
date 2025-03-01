@@ -23,6 +23,8 @@ Key Features
 4. Model Interpretation & Explainability
 	•	SHAP Implementation: Uses SHapley Additive exPlanations to provide deep insights into feature importance and model behavior.
 	•	Interpretation Module: A dedicated model_interpretation.py file visualizes and explains model decisions for transparency and trustworthiness.
+	•	Feature Map Visualization: Visualizes the impact of individual features on predictions to improve interpretability.
+	•	Grad-CAM Integration: Implements Grad-CAM to highlight which parts of the data most influence the model’s decisions.
 
 Tools & Frameworks
 	•	Python: Core programming language.
@@ -36,12 +38,10 @@ Tools & Frameworks
 Installation & Usage
 
 1. Clone the Repository
-
 git clone https://github.com/erenaktuerk/credit-risk-api
 cd credit-risk-api
 
 2. Install Dependencies
-
 pip install -r requirements.txt
 
 3. Train the Model
