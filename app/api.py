@@ -34,7 +34,7 @@ class LoanData(BaseModel):
     cb_person_income: float
     loan_purpose: str
 
-# Define the prediction endpoint using the POST method
+# Defining the prediction endpoint using the POST method
 @app.post("/api/predict/")
 def predict(loan_data: LoanData):
     # Convert input data to a dictionary and then to a DataFrame

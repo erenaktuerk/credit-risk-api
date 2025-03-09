@@ -20,7 +20,7 @@ label_encoder = LabelEncoder()
 data['loan_grade'] = label_encoder.fit_transform(data['loan_grade'])
 
 # Drop irrelevant columns that do not contribute to the model's prediction
-# In this case, we drop 'loan_status' which contains only NaN values
+# In this case, 'loan_status' is being dropped, which contains only NaN values
 data.drop(columns=["loan_status"], inplace=True, errors='ignore')
 
 # One-hot encode categorical variables to convert them into a format suitable for machine learning models
